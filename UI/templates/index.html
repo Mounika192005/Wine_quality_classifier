@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wine Quality AI</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+<div class="background">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <main class="container">
+
+        <!-- HEADER -->
+
+        <section class="hero">
+
+            <div class="wine-icon">
+                🍷
+            </div>
+
+            <p class="eyebrow">
+                MACHINE LEARNING • FASTAPI
+            </p>
+
+            <h1>
+                Wine Quality
+                <span>Predictor</span>
+            </h1>
+
+            <p class="subtitle">
+                Enter the wine's chemical properties and let the trained
+                machine learning model estimate its quality score.
+            </p>
+
+        </section>
+
+
+        <!-- CARD -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Wine Parameters</h2>
+
+                    <p>
+                        Enter all 11 chemical measurements.
+                    </p>
+                </div>
+
+                <div class="status">
+                    <span></span>
+                    Model Ready
+                </div>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <form id="predictionForm">
+
+                <div class="grid">
+
+
+                    <!-- FIXED ACIDITY -->
+
+                    <div class="field">
+
+                        <label for="fixed_acidity">
+                            Fixed Acidity
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="fixed_acidity"
+                            placeholder="e.g. 7.4"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- VOLATILE ACIDITY -->
+
+                    <div class="field">
+
+                        <label for="volatile_acidity">
+                            Volatile Acidity
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="volatile_acidity"
+                            placeholder="e.g. 0.70"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- CITRIC ACID -->
+
+                    <div class="field">
+
+                        <label for="citric_acid">
+                            Citric Acid
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="citric_acid"
+                            placeholder="e.g. 0.00"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- RESIDUAL SUGAR -->
+
+                    <div class="field">
+
+                        <label for="residual_sugar">
+                            Residual Sugar
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="residual_sugar"
+                            placeholder="e.g. 1.9"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- CHLORIDES -->
+
+                    <div class="field">
+
+                        <label for="chlorides">
+                            Chlorides
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="chlorides"
+                            placeholder="e.g. 0.076"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- FREE SO2 -->
+
+                    <div class="field">
+
+                        <label for="free_sulfur_dioxide">
+                            Free Sulfur Dioxide
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="free_sulfur_dioxide"
+                            placeholder="e.g. 11"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- TOTAL SO2 -->
+
+                    <div class="field">
+
+                        <label for="total_sulfur_dioxide">
+                            Total Sulfur Dioxide
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="total_sulfur_dioxide"
+                            placeholder="e.g. 34"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- DENSITY -->
+
+                    <div class="field">
+
+                        <label for="density">
+                            Density
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="density"
+                            placeholder="e.g. 0.9978"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PH -->
+
+                    <div class="field">
+
+                        <label for="pH">
+                            pH
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="pH"
+                            placeholder="e.g. 3.51"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- SULPHATES -->
+
+                    <div class="field">
+
+                        <label for="sulphates">
+                            Sulphates
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="sulphates"
+                            placeholder="e.g. 0.56"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- ALCOHOL -->
+
+                    <div class="field">
+
+                        <label for="alcohol">
+                            Alcohol
+                        </label>
+
+                        <input
+                            type="number"
+                            step="any"
+                            id="alcohol"
+                            placeholder="e.g. 9.4"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <button
+                    type="submit"
+                    id="predictBtn"
+                >
+
+                    <span id="buttonText">
+                        Predict Wine Quality
+                    </span>
+
+                    <span
+                        id="loader"
+                        class="loader hidden"
+                    ></span>
+
+                </button>
+
+            </form>
+
+
+            <!-- RESULT -->
+
+            <div
+                id="result"
+                class="result hidden"
+            >
+
+                <div class="result-title">
+                    Prediction Result
+                </div>
+
+                <div
+                    id="predictionValue"
+                    class="prediction-value"
+                >
+                    -
+                </div>
+
+                <p>
+                    Predicted wine quality score
+                </p>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="errorBox"
+                class="error hidden"
+            >
+                <span>⚠</span>
+
+                <span id="errorText">
+                    Something went wrong.
+                </span>
+            </div>
+
+        </section>
+
+
+        <footer>
+            Powered by FastAPI + Machine Learning
+        </footer>
+
+    </main>
+
+</div>
+
+<script src="/static/js/scripts.js"></script>
+
+</body>
+
+</html>
