@@ -11,6 +11,25 @@ from pydantic import BaseModel, Field
 
 
 # ---------------------------------------------------------
+# PROJECT STRUCTURE
+#
+# My_practice(ML)/
+# ├── app.py                  <- this file
+# ├── Model/wine_quality_model.joblib
+# └── UI/
+#     ├── templates/index.html
+#     └── static/css/style.css, static/js/scripts.js
+# ---------------------------------------------------------
+
+BASE_DIR = Path(__file__).resolve().parent
+
+MODEL_PATH = BASE_DIR / "Model" / "wine_quality_model.joblib"
+UI_DIR = BASE_DIR / "UI"
+HTML_PATH = UI_DIR / "templates" / "index.html"
+STATIC_DIR = UI_DIR / "static"
+
+
+# ---------------------------------------------------------
 # APP
 # ---------------------------------------------------------
 
@@ -35,20 +54,15 @@ app.add_middleware(
 
 
 # ---------------------------------------------------------
-# PATHS
+# STATIC FILES (CSS / JS)  ->  /static/css/style.css
+#                              /static/js/scripts.js
 # ---------------------------------------------------------
 
-BASE_DIR = Path(__file__).resolve().parent
-MODEL_PATH = BASE_DIR.parent / "Model" / "wine_quality_model.joblib"
-HTML_PATH = BASE_DIR / "templates" / "index.html"
-STATIC_DIR = BASE_DIR / "static"
-
-# Serve CSS / JS files at /static/...
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 # ---------------------------------------------------------
-# FEATURES
+# FEATURES (same order as the training data)
 # ---------------------------------------------------------
 
 FEATURES = [
@@ -73,37 +87,35 @@ FEATURES = [
 try:
     loaded_model = joblib.load(MODEL_PATH)
 
-    # Case 1:
-    # Model.joblib contains the model directly
+    # Case 1: the joblib file contains the model directly
     if hasattr(loaded_model, "predict"):
         model = loaded_model
 
-    # Case 2:
-    # Model.joblib contains a dictionary
+    # Case 2: the joblib file contains a dictionary
     elif isinstance(loaded_model, dict):
         if "model" not in loaded_model:
             raise ValueError(
-                "Model.joblib is a dictionary but does not contain a 'model' key."
+                "Model file is a dictionary but does not contain a 'model' key."
             )
 
         model = loaded_model["model"]
 
-        # If your saved file contains columns, use them
         if "columns" in loaded_model:
-            FEATURES = loaded_model["columns"]
+            FEATURES = list(loaded_model["columns"])
 
     else:
         raise ValueError(
-            "Unsupported Model.joblib format. "
+            "Unsupported model file format. "
             "It should contain a trained model or a dictionary containing 'model'."
         )
 
-    print("✅ Model loaded successfully")
+    print("✅ Model loaded successfully from:", MODEL_PATH)
     print("✅ Features:", FEATURES)
 
 except Exception as e:
     model = None
     print("❌ Model loading failed:", e)
+    print("   Looked for the model at:", MODEL_PATH)
 
 
 # ---------------------------------------------------------
@@ -162,11 +174,8 @@ def predict(data: WineInput):
 
     try:
 
-        # -------------------------------------------------
-        # Create input in EXACT training order
-        # -------------------------------------------------
-
-        input_data = [[
+        # Values in the EXACT order used during training
+        values = [
             data.fixed_acidity,
             data.volatile_acidity,
             data.citric_acid,
@@ -178,18 +187,23 @@ def predict(data: WineInput):
             data.pH,
             data.sulphates,
             data.alcohol
-        ]]
+        ]
 
-        # Convert to numpy array
-        input_array = np.array(input_data, dtype=float)
+        # The model was trained on a DataFrame with column names,
+        # so give it the same column names to avoid sklearn warnings.
+        if hasattr(model, "feature_names_in_"):
+            import pandas as pd
 
-        # -------------------------------------------------
-        # Prediction
-        # -------------------------------------------------
+            input_data = pd.DataFrame(
+                [values],
+                columns=list(model.feature_names_in_)
+            )
+        else:
+            input_data = np.array([values], dtype=float)
 
-        prediction = model.predict(input_array)
+        prediction = model.predict(input_data)
 
-        # Convert numpy output into normal Python value
+        # Convert numpy output into a normal Python value
         result = prediction[0]
 
         if hasattr(result, "item"):
@@ -209,7 +223,7 @@ def predict(data: WineInput):
 
 
 # ---------------------------------------------------------
-# RUN
+# RUN  (python app.py)
 # ---------------------------------------------------------
 
 if __name__ == "__main__":
@@ -219,6 +233,5 @@ if __name__ == "__main__":
         "app:app",
         host="127.0.0.1",
         port=8000,
-        reload=True,
-        app_dir=str(BASE_DIR)
+        reload=True
     )
